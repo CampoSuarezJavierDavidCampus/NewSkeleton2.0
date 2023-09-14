@@ -92,7 +92,7 @@ public class AuthController:BaseApiController{
     }
 
     [HttpPost("changeRol")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ChangeRolAsync(AddRol model){
@@ -106,8 +106,7 @@ public class AuthController:BaseApiController{
                 StatusCodes.Status500InternalServerError,
                 "some Wrong"
             );
-        }
-
+        }        
         //-Obtener rol solicitado
         Role? existingRol = await _UnitOfWork.Roles.GetRolByRoleName(model.RolName);
         if (existingRol == null){//-Validar rol
@@ -133,8 +132,10 @@ public class AuthController:BaseApiController{
         //-Obtener token
         string? token = HttpContext.Request.Headers["Authorization"].FirstOrDefault() ?? throw new Exception("Invalid Token");
         User? user = await _UnitOfWork.Users.GetUserByName(username);
+
         if(user == null ){return BadRequest("User not found");}
-        else if(user.RefreshToken != token){return BadRequest("refresh token invalid");}
+
+        else if("Bearer " + user.RefreshToken != token){return BadRequest("refresh token invalid");}
 
         return Ok(new {
             username = user.Username,
@@ -161,7 +162,7 @@ public class AuthController:BaseApiController{
     private void ValidateToken(out ClaimsPrincipal principal, out string token){
         //-Obtener token
         token = HttpContext.Request.Headers["Authorization"].FirstOrDefault() ?? throw new Exception("Invalid Token");
-
+        _Logger.LogDebug(token);
         try{
             principal = _TokenManager.GetTokenInformation(token).principal;
         }catch (SecurityTokenException ){

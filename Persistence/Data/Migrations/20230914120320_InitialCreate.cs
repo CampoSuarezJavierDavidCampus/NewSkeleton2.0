@@ -43,9 +43,9 @@ namespace Persistence.Data.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     passwordUser = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    accessTokenUser = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
+                    accessTokenUser = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    refreshTokenUser = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
+                    refreshTokenUser = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     RoleId = table.Column<int>(type: "int", nullable: false)
                 },

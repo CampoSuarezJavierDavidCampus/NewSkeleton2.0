@@ -23,43 +23,6 @@ public sealed class TokenManager : ITokenManager{
         _ = int.TryParse(conf["JWTSettings:RefreshTokenTimeInHours"], out _RefreshTokenTokenDuration); 
 
     }
-
-    public  string CreateAccessToken(User user){        
-        //-Define Claims
-        var claims = new List<Claim>(){
-            new(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
-            new(ClaimTypes.Name,user.Username),
-            new(ClaimTypes.Email,user.Email!),
-            new(ClaimTypes.Role,user.Role!.Description)
-        };        
-
-        //-Return Token
-        return CreateToken(claims,DateTime.Now.AddMinutes(_AccessTokenDuration));
-    }
-
-    public  string CreateRefreshToken(){
-        //-Define Claims
-        var claims = new List<Claim>(){
-                new(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())};
-
-        //-Return Token
-        return CreateToken(claims,DateTime.Now.AddHours(_RefreshTokenTokenDuration));
-    }
-    
-    public User CreateUser(UserSignup model){
-        //-Crear Usuario
-        User user = new(){
-            Email = model.Email!,
-            Username = model.Username!
-        };
-
-        //-Encriptar Password
-        user.Password = _PasswordHasher.HashPassword(user,model.Password!);
-
-        //-Retornar usuario
-        return user;
-    }    
-    
     //Validar contraseña
     public  bool ValidatePassword(User user, string password){        
         return _PasswordHasher.VerifyHashedPassword(
@@ -75,9 +38,9 @@ public sealed class TokenManager : ITokenManager{
 
         //-Parametros a validar
         TokenValidationParameters validationParameters = new(){
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            IssuerSigningKey = GetSecurityKey(),  
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            IssuerSigningKey = GetSecurityKey() ,  
             ClockSkew = TimeSpan.FromMinutes(5),
             ValidateLifetime = true              
         };
@@ -87,7 +50,20 @@ public sealed class TokenManager : ITokenManager{
         
         return (principal,validatedToken);            
     }
+    public User CreateUser(UserSignup model){
+        //-Crear Usuario
+        User user = new(){
+            Email = model.Email!,
+            Username = model.Username!
+        };
 
+        //-Encriptar Password
+        user.Password = _PasswordHasher.HashPassword(user,model.Password!);
+
+        //-Retornar usuario
+        return user;
+    }    
+    
     private SymmetricSecurityKey GetSecurityKey(){
         //-Obterner Key
         var key = new SymmetricSecurityKey(
@@ -96,6 +72,34 @@ public sealed class TokenManager : ITokenManager{
                     throw new Exception("Error: key not found"
                 )));         
         return key;   
+    }
+
+
+
+    public  string CreateAccessToken(User user){        
+        //-Define Claims
+        var claims = new List<Claim>(){
+            new(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+            new(ClaimTypes.Name,user.Username),
+            new(ClaimTypes.Email,user.Email!),
+            new(ClaimTypes.Role,user.Role!.Description)
+        };        
+
+        var date = new DateTime();
+        date = DateTime.Now.AddMinutes(_AccessTokenDuration);
+        //-Return Token
+        return CreateToken(claims,date);
+    }
+
+    public  string CreateRefreshToken(){
+        //-Define Claims
+        var claims = new List<Claim>(){
+                new(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())};
+        
+        var date = new DateTime();
+        date = DateTime.Now.AddHours(_RefreshTokenTokenDuration);
+        //-Return Token
+        return CreateToken(claims,date);
     }
     
     private string CreateToken(IEnumerable<Claim> claims, DateTime expireTime){        
@@ -107,6 +111,7 @@ public sealed class TokenManager : ITokenManager{
             Issuer = _Conf["JWTSettings:Issuer"],
             Audience = _Conf["JWTSettings:Audience"],
             Subject = new ClaimsIdentity(claims),
+            NotBefore = DateTime.Now,
             Expires = expireTime,
             SigningCredentials = credentials
         };
@@ -119,4 +124,5 @@ public sealed class TokenManager : ITokenManager{
         return tokenHandler.WriteToken(token);        
     }    
 
+    
 }

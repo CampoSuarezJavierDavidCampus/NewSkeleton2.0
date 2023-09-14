@@ -11,7 +11,7 @@ using Persistence;
 namespace Persistence.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230914075408_InitialCreate")]
+    [Migration("20230914120320_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -67,8 +67,8 @@ namespace Persistence.Data.Migrations
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("AccessToken")
-                        .HasMaxLength(250)
-                        .HasColumnType("varchar(250)")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
                         .HasColumnName("accessTokenUser");
 
                     b.Property<string>("Email")
@@ -83,8 +83,8 @@ namespace Persistence.Data.Migrations
                         .HasColumnName("passwordUser");
 
                     b.Property<string>("RefreshToken")
-                        .HasMaxLength(250)
-                        .HasColumnType("varchar(250)")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
                         .HasColumnName("refreshTokenUser");
 
                     b.Property<int>("RoleId")

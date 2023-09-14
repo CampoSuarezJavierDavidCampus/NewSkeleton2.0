@@ -32,11 +32,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>{
 
         builder.Property(x => x.AccessToken)
             .HasColumnName("accessTokenUser")
-            .HasMaxLength(250);
+            .HasMaxLength(500);
         
         builder.Property(x => x.RefreshToken)
             .HasColumnName("refreshTokenUser")
-            .HasMaxLength(250);
+            .HasMaxLength(500);
         
         builder.HasIndex(p => new{
             p.Username,p.Email
