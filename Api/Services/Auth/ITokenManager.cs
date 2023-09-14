@@ -9,5 +9,4 @@ public interface ITokenManager{
     string CreateRefreshToken();
     User CreateUser(UserSignup model);
     bool ValidatePassword(User user, string password);
-    public (ClaimsPrincipal principal, SecurityToken validatedToken) GetTokenInformation(string tokenString);
 }

@@ -98,7 +98,14 @@ public class AuthController:BaseApiController{
     public async Task<ActionResult> ChangeRolAsync(AddRol model){
         User? user;
         try{
-            user = await ValidateUser();
+            string? token = HttpContext.Request.Headers["Authorization"].FirstOrDefault() ?? throw new Exception("Invalid Token");                            
+            //-Obtener usuario                        
+            user = await _UnitOfWork.Users.GetUserByName(model.Username!);
+
+            //-Valida usuario
+            if (user == null){throw new Exception($"No existe el usuario.");}
+            if(token != "Bearer " + user.AccessToken){throw new Exception($"Invalid Token.");}
+        
         }catch (Exception ex){
             _Logger.LogError(ex.Message);
 
@@ -143,30 +150,5 @@ public class AuthController:BaseApiController{
             refreshToken = token
         });
 
-    }
-
-    private async Task<User> ValidateUser(){
-        User? user;       
-        //-Obtener usuario
-        ValidateToken(out ClaimsPrincipal principal, out string token);
-        var Username = principal.FindFirst(ClaimTypes.Name)?.Value;        
-        user = await _UnitOfWork.Users.GetUserByName(Username!);
-
-        //-Valida usuario
-        if (user == null){throw new Exception($"No existe el usuario.");}
-        if(token != user.AccessToken){throw new Exception($"Invalid Token.");}
-
-        return user;
-    }
-
-    private void ValidateToken(out ClaimsPrincipal principal, out string token){
-        //-Obtener token
-        token = HttpContext.Request.Headers["Authorization"].FirstOrDefault() ?? throw new Exception("Invalid Token");
-        _Logger.LogDebug(token);
-        try{
-            principal = _TokenManager.GetTokenInformation(token).principal;
-        }catch (SecurityTokenException ){
-            throw new Exception("Some Wrong");            
-        }  
     }
 }

@@ -30,26 +30,7 @@ public sealed class TokenManager : ITokenManager{
                     user.Password, 
                     password
                 ) == PasswordVerificationResult.Success;
-    }
-
-    //-Validar token
-    public (ClaimsPrincipal principal, SecurityToken validatedToken) GetTokenInformation(string tokenString){
-        JwtSecurityTokenHandler tokenHandler = new();
-
-        //-Parametros a validar
-        TokenValidationParameters validationParameters = new(){
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            IssuerSigningKey = GetSecurityKey() ,  
-            ClockSkew = TimeSpan.FromMinutes(5),
-            ValidateLifetime = true              
-        };
-        
-        //-Validar token
-        var principal = tokenHandler.ValidateToken(tokenString, validationParameters, out SecurityToken validatedToken);
-        
-        return (principal,validatedToken);            
-    }
+    }    
     public User CreateUser(UserSignup model){
         //-Crear Usuario
         User user = new(){
